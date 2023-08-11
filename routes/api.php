@@ -1,7 +1,8 @@
 <?php
 
-use App\Http\Controllers\CategoryController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\CategoryController;
 
 Route::apiResource('categorias', CategoryController::class)->names([
     'index' => 'categories.index',
@@ -11,4 +12,14 @@ Route::apiResource('categorias', CategoryController::class)->names([
     'destroy' => 'categories.destroy'
 ])->parameters([
     'categorias' => 'id'
+]);
+
+Route::apiResource('produtos', ProductController::class)->names([
+    'index' => 'products.index',
+    'store' => 'products.store',
+    'show' => 'products.show',
+    'update' => 'products.update',
+    'destroy' => 'products.destroy'
+])->parameters([
+    'produtos' => 'id'
 ]);
