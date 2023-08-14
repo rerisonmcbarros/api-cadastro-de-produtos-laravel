@@ -17,6 +17,10 @@ class CategoryResource extends JsonResource
         return [
             'code' => $this->code,
             'name' => $this->name,
+            'products' => $this->when(
+                $request->get('relationships'), 
+                ProductResource::collection($this->whenLoaded('products'))
+            )
         ];
     }
 }

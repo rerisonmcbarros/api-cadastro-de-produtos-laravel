@@ -18,7 +18,7 @@ class ProductController extends Controller
     public function index(): AnonymousResourceCollection
     {
         return ProductResource::collection(
-            Product::query()->paginate(15)
+            Product::query()->with('category')->paginate(15)
         );
     }
 
@@ -38,7 +38,7 @@ class ProductController extends Controller
     public function show(string $id): ProductResource
     {
         return new ProductResource(
-            Product::query()->findOrFail($id)
+            Product::query()->with('category')->findOrFail($id)
         );
     }
 

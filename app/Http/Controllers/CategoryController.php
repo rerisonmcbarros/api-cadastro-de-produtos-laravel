@@ -15,7 +15,7 @@ class CategoryController extends Controller
     public function index(): AnonymousResourceCollection
     {
         return CategoryResource::collection(
-            Category::query()->paginate(15)
+            Category::query()->with('products')->paginate(15)
         );
     }
 
@@ -28,7 +28,7 @@ class CategoryController extends Controller
     public function show(string $id)
     {
         return new CategoryResource(
-            Category::query()->findOrFail($id)
+            Category::query()->with('products')->findOrFail($id)
         );
     }
 
