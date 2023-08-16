@@ -14,6 +14,9 @@ Route::apiResource('categorias', CategoryController::class)->names([
     'categorias' => 'id'
 ]);
 
+Route::post('produtos/{id}/adicionar-foto', [ProductController::class, 'addImage']);
+Route::delete('produtos/remover-foto/{idImage}', [ProductController::class, 'removeImage']);
+
 Route::apiResource('produtos', ProductController::class)->names([
     'index' => 'products.index',
     'store' => 'products.store',

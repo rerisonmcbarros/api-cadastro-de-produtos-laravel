@@ -49,6 +49,11 @@ class StoreProductRequest extends FormRequest
                 'required',
                 'integer',
                 'min:0'
+            ],
+            'images.*' => [
+                'nullable',
+                'image',
+                'mimes:jpeg,jpg,png'
             ]
         ];
     }
@@ -60,7 +65,8 @@ class StoreProductRequest extends FormRequest
             'description' => 'descrição',
             'purchase_price' => 'preço de compra',
             'sale_price' => 'preço de venda',
-            'storage' => 'estoque'
+            'storage' => 'estoque',
+            'images' => 'imagem'
         ];
     }
 }
