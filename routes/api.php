@@ -1,8 +1,19 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
+
+Route::apiResource('usuarios', UserController::class)->names([
+    'index' => 'users.index',
+    'store' => 'users.store',
+    'show' => 'users.show',
+    'update' => 'users.update',
+    'destroy' => 'users.destroy'
+])->parameters([
+    'usuarios' => 'id'
+]);;
 
 Route::apiResource('categorias', CategoryController::class)->names([
     'index' => 'categories.index',
