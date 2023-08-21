@@ -35,6 +35,10 @@ class UpdateUserRequest extends FormRequest
                 Password::min(8)->numbers()->letters(), 
                 'max:255',
                 'confirmed'
+            ],
+            'is_admin' => [
+                'nullable',
+                'boolean'
             ]
         ];
     }
@@ -44,7 +48,8 @@ class UpdateUserRequest extends FormRequest
         return [
             'name' => 'nome',
             'email' => 'e-mail',
-            'password' => 'senha'
+            'password' => 'senha',
+            'is_admin' => 'administrador'
         ];
     }
 }
