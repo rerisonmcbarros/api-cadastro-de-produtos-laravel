@@ -13,6 +13,7 @@ use App\Http\Requests\UpdateProductRequest;
 use App\Http\Resources\ProductImageResource;
 use App\Http\Requests\AddImageProductRequest;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Gate;
 
 class ProductController extends Controller
 {
@@ -31,6 +32,8 @@ class ProductController extends Controller
      */
     public function store(StoreProductRequest $request): ProductResource
     {
+        Gate::authorize('create', Product::class);
+
         $product = Product::query()->create($request->except(['images']));
 
         if ($request->hasFile('images')) {
@@ -64,10 +67,14 @@ class ProductController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateProductRequest $request, string $id): JsonResponse
+    public function update(UpdateProductRequest $request, $id): JsonResponse
     {
-        Product::query()->findOrFail($id)
-        ->update($request->validated());
+        $product = Product::query()->findOrFail($id);
+
+        Gate::authorize('update', $product);
+
+        $product->fill($request->validated());
+        $product->save();
 
         return response()->json([], Response::HTTP_NO_CONTENT);
     }
@@ -79,6 +86,8 @@ class ProductController extends Controller
     {
         $product = Product::query()->with('images')
         ->findOrFail($id);
+
+        Gate::authorize('delete', $product);
         
         $product->delete();
         
@@ -89,6 +98,8 @@ class ProductController extends Controller
 
     public function addImage(AddImageProductRequest $request, $id): ProductImageResource
     {
+        Gate::authorize('addImage', Product::class);
+
         $product = Product::query()->with('images')->findOrFail($id);
         $image = $product->images()->create([
             "path" => $request->file('image')->store("products/{$product->id}/images", 'public')
@@ -99,6 +110,8 @@ class ProductController extends Controller
 
     public function removeImage($id): JsonResponse
     {
+        Gate::authorize('removeImage', Product::class);
+
         $image = ProductImage::query()->findOrFail($id);
         $image->delete();
         Storage::disk('public')->delete($image->path);

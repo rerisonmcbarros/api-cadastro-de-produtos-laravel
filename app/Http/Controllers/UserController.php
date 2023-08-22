@@ -4,9 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Response;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Gate;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
-use Illuminate\Http\JsonResponse;
 
 class UserController extends Controller
 {
@@ -15,6 +16,8 @@ class UserController extends Controller
      */
     public function index(): JsonResponse
     {
+        Gate::authorize('viewAny', User::class);
+
         return response()->json(
             User::query()->paginate(15), 
             Response::HTTP_OK
@@ -26,6 +29,8 @@ class UserController extends Controller
      */
     public function store(StoreUserRequest $request): JsonResponse
     {
+        Gate::authorize('create', User::class);
+
         return response()->json(
             User::query()->create($request->validated()), 
             Response::HTTP_CREATED
@@ -37,8 +42,12 @@ class UserController extends Controller
      */
     public function show(string $id): JsonResponse
     {
+        $user = User::query()->findOrFail($id);
+
+        Gate::authorize('view', $user);
+
         return response()->json(
-            User::query()->findOrFail($id), 
+            $user, 
             Response::HTTP_OK
         );
     }
@@ -48,8 +57,12 @@ class UserController extends Controller
      */
     public function update(UpdateUserRequest $request, string $id): JsonResponse
     {
-        User::query()->findOrFail($id)
-        ->update($request->validated());
+        $user = User::query()->findOrFail($id);
+
+        Gate::authorize('update', $user);
+
+        $user->fill($request->validated());
+        $user->save();
 
         return response()->json([], Response::HTTP_NO_CONTENT);
     }
@@ -59,8 +72,11 @@ class UserController extends Controller
      */
     public function destroy(string $id): JsonResponse
     {
-        User::query()->findOrFail($id)
-        ->delete();
+        $user = User::query()->findOrFail($id);
+        
+        Gate::authorize('delete', $user);
+        
+        $user->delete();
 
         return response()->json([], Response::HTTP_NO_CONTENT);
     }

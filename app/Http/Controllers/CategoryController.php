@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use Illuminate\Http\Response;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Gate;
 use App\Http\Resources\CategoryResource;
 use App\Http\Requests\StoreCategoryRequest;
 use App\Http\Requests\UpdateCategoryRequest;
@@ -21,6 +22,8 @@ class CategoryController extends Controller
 
     public function store(StoreCategoryRequest $request): CategoryResource
     {   
+        Gate::authorize('create', Category::class);
+
         $category = Category::query()->create($request->validated());
         return new CategoryResource($category);
     }
@@ -34,16 +37,23 @@ class CategoryController extends Controller
 
     public function update(UpdateCategoryRequest $request, string $id): JsonResponse
     {
-        Category::query()->findOrFail($id)
-        ->update($request->validated());
+        $category = Category::query()->findOrFail($id);
+
+        Gate::authorize('update', $category);
+
+        $category->fill($request->validated());
+        $category->save();
 
         return response()->json([], Response::HTTP_NO_CONTENT);
     }
 
     public function destroy(string $id): JsonResponse
     {
-        Category::query()->findOrFail($id)
-        ->delete();
+        $category = Category::query()->findOrFail($id);
+
+        Gate::authorize('delete', $category);
+
+        $category->delete();
 
         return response()->json([], Response::HTTP_NO_CONTENT);
     }
