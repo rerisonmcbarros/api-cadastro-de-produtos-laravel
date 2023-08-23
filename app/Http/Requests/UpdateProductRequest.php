@@ -35,7 +35,7 @@ class UpdateProductRequest extends FormRequest
             'description' => [
                 'required',
                 'max:255',
-                "unique:products,code,{$this->id},id"
+                "unique:products,description,{$this->id},id"
             ],
             'purchase_price' => [
                 'required',
