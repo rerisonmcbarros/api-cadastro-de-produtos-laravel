@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use \Exception;
 use App\Models\Product;
 use App\Models\ProductImage;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use App\Http\Resources\ProductResource;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\StoreProductRequest;
@@ -13,7 +17,6 @@ use App\Http\Requests\UpdateProductRequest;
 use App\Http\Resources\ProductImageResource;
 use App\Http\Requests\AddImageProductRequest;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\Gate;
 
 class ProductController extends Controller
 {
@@ -32,26 +35,36 @@ class ProductController extends Controller
      */
     public function store(StoreProductRequest $request): ProductResource
     {
-        Gate::authorize('create', Product::class);
-
-        $product = Product::query()->create($request->except(['images']));
-
-        if ($request->hasFile('images')) {
-
-            foreach ($request->file('images') as $file) {
+        try {
+            Gate::authorize('create', Product::class);
             
-                $image = new ProductImage();
-                $image->product_id = $product->id;
-                $image->path = $file->store("products/{$product->id}/images", 'public');
-                $image->save();
-    
-                unset($image);
-            }
-        }
+            DB::beginTransaction();
 
-        return new ProductResource(
-            $product
-        );
+            $product = Product::query()->create($request->except(['images']));
+    
+            if ($request->hasFile('images')) {
+    
+                foreach ($request->file('images') as $file) {
+                
+                    $image = new ProductImage();
+                    $image->product_id = $product->id;
+                    $image->path = $file->store("products/{$product->id}/images", 'public');
+                    $image->save();
+        
+                    unset($image);
+                }
+            }
+    
+            DB::commit();
+
+            return new ProductResource(
+                $product
+            );
+
+        } catch(Exception $exception) {
+            DB::rollBack();
+            throw $exception;
+        }
     }
 
     /**
